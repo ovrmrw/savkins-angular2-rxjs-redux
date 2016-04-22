@@ -27,7 +27,7 @@ function merge<T>(obj1: T, obj2: {}): T {
   return obj3 as T;
 }
 
-function getVisibleTodos(todos: ITodo[], filter: string): ITodo[] {
+function getVisibleTodos(todos: Todo[], filter: string): Todo[] {
   return todos.filter(todo => {
     if (filter === "SHOW_ACTIVE") { // filterがSHOW_ACTIVEならcompletedがfalseのものだけ返す。
       return !todo.completed;
@@ -45,13 +45,13 @@ function getVisibleTodos(todos: ITodo[], filter: string): ITodo[] {
   状態管理のためのインターフェース。アクション発生毎にこれらが更新される。
   また更新を全てRxjs(onpush)に委ねることでChangeDetectionStrategy.OnPushが使えるようになる。これはデフォルトよりも処理が速い。
 */
-interface ITodo {
+interface Todo {
   id: number;
   text: string;
   completed: boolean;
 }
-interface IAppState {
-  todos: ITodo[];
+interface AppState {
+  todos: Todo[];
   visibilityFilter: string;
 }
 
@@ -77,15 +77,15 @@ type Action = AddTodoAction | ToggleTodoAction | SetVisibilityFilter;
   状態管理をする関数。stateFnは特に重要。興味を持ったもののここで挫ける人が多数いそう。
 */
 // stateFn関数のヘルパー。
-function todosStateObserver(initState: ITodo[], actions: Observable<Action>): Observable<ITodo[]> {
+function todosStateObserver(initState: Todo[], actions: Observable<Action>): Observable<Todo[]> {
   // actions.scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
-  return actions.scan((todos: ITodo[], action: Action) => { // "rxjs scan"でググる。
+  return actions.scan((todos: Todo[], action: Action) => { // "rxjs scan"でググる。
     if (action instanceof AddTodoAction) { // これによりactionは型が確定する。
       const newTodo = {
         id: action.todoId,
         text: action.text,
         completed: false
-      } as ITodo;
+      } as Todo;
       return [...todos, newTodo]; // ...todosは配列を展開している。
     } else {
       return todos.map(todo => {
@@ -112,7 +112,7 @@ function filterStateObserver(initState: string, actions: Observable<Action>): Ob
 }
 
 // 超重要。ただし理解は困難。最初に一度だけ呼ばれてイベントリスナーを登録する。
-function stateFn(initState: IAppState, actions: Observable<Action>): Observable<IAppState> {
+function stateFn(initState: AppState, actions: Observable<Action>): Observable<AppState> {
   const subject = new BehaviorSubject(initState); // "rxjs BehaviorSubject"でググる。
 
   // Actionがトリガーされる度にこのSubscriptionが反応する。いわゆるイベントリスナー。
@@ -122,7 +122,7 @@ function stateFn(initState: IAppState, actions: Observable<Action>): Observable<
       todosStateObserver(subject.value.todos, actions),
       filterStateObserver(subject.value.visibilityFilter, actions),
       (todos, visibilityFilter) => { // zipが返す値を整形できる。
-        return { todos, visibilityFilter } as IAppState; // {'todos':todos,'visibilityFilter':visibilityFilter}の省略形。
+        return { todos, visibilityFilter } as AppState; // {'todos':todos,'visibilityFilter':visibilityFilter}の省略形。
       }
     )
     .subscribe(appState => {
@@ -164,7 +164,7 @@ const stateAndDispatcher = [
     </span>
   `
 })
-class Todo {
+class TodoComponent {
   @Input() text: string;
   @Input() completed: boolean;
   @Output() toggle = new EventEmitter();
@@ -182,12 +182,12 @@ class Todo {
       [text]="t.text" [completed]="t.completed"
       (toggle)="emitToggle(t.id)"></todo>
   `,
-  directives: [Todo]
+  directives: [TodoComponent]
 })
-class TodoList {
+class TodoListComponent {
   constructor(
     @Inject(DISPATCHER) private dispatcher: Observer<Action>,
-    @Inject(STATE) private state: Observable<IAppState>
+    @Inject(STATE) private state: Observable<AppState>
   ) { }
 
   get filtered() {
@@ -210,7 +210,7 @@ let nextId = 0;
     <input #text><button (click)="addTodo(text.value)">Add Todo</button>
   `
 })
-class AddTodo {
+class AddTodoComponent {
   constructor(
     @Inject(DISPATCHER) private dispatcher: Observer<Action>
   ) { }
@@ -228,11 +228,11 @@ class AddTodo {
       [style.textDecoration]="textEffect|async"><ng-content></ng-content></a>
   `
 })
-class FilterLink {
+class FilterLinkComponent {
   @Input() filter: string;
   constructor(
     @Inject(DISPATCHER) private dispatcher: Observer<Action>,
-    @Inject(STATE) private state: Observable<IAppState>
+    @Inject(STATE) private state: Observable<AppState>
   ) { }
 
   // 選択中のフィルター名にアンダーラインを引く。
@@ -242,7 +242,6 @@ class FilterLink {
     });
   }
 
-  // DIを通して何かやってる。
   setVisibilityFilter() {
     this.dispatcher.next(new SetVisibilityFilter(this.filter)); // stateFn()の引数actionsを変更していると同時にイベントをトリガーしている。(多分)
   }
@@ -256,9 +255,9 @@ class FilterLink {
     <filter-link filter="SHOW_ACTIVE">Active</filter-link>
     <filter-link filter="SHOW_COMPLETED">Completed</filter-link>
   `,
-  directives: [FilterLink]
+  directives: [FilterLinkComponent]
 })
-class Footer { }
+class FooterComponent { }
 
 // 最上位のコンポーネント。
 @Component({
@@ -268,7 +267,7 @@ class Footer { }
     <todo-list></todo-list>
     <footer></footer>
   `,
-  directives: [AddTodo, TodoList, Footer],
+  directives: [AddTodoComponent, TodoListComponent, FooterComponent],
   providers: stateAndDispatcher, // stateAndDispatcherのDIが全ての子コンポーネントに影響する。
   changeDetection: ChangeDetectionStrategy.OnPush // Rxjsのpushが全ての状態変更を管轄しているのでこの設定が可能になる。
 })
