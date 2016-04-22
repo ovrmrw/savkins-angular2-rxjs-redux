@@ -279,7 +279,6 @@ class FooterComponent { }
 })
 class TodoApp { }
 
-
 enableProdMode(); // 動作が2倍くらい速くなる。プロダクション環境では推奨。
 bootstrap(TodoApp)
   .catch(err => console.error(err));
