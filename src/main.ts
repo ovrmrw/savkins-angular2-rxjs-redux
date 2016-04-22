@@ -116,7 +116,7 @@ function stateFn(initState: IAppState, actions: Observable<Action>): Observable<
   const subject = new BehaviorSubject(initState); // "rxjs BehaviorSubject"でググる。
 
   // Actionがトリガーされる度にこのSubscriptionが反応する。いわゆるイベントリスナー。
-  // Viewでdispather.next()が実行されたとき、stateFn()の引数actionsが変更され、つられてSubscriptionが反応する。僕はそう解釈した。
+  // Viewでdispatcher.next()が実行されたとき、stateFn()の引数actionsが変更され、つられてSubscriptionが反応する。僕はそう解釈した。
   Observable
     .zip( // "rxjs zip"でググる。
       todosStateObserver(subject.value.todos, actions),
@@ -142,7 +142,7 @@ const DISPATCHER = new OpaqueToken("dispatcher");
 const STATE = new OpaqueToken("state");
 
 // STATEの中でstateFn関数を呼んでいる。そしてDISPATCHERを依存関係に取り込んでいるので、
-// おそらく後述するdispather.next()が呼ばれたときにstateFnでクロージャされたactionsが反応してSubscriptionが反応する仕組みなのだろう。(適当)
+// おそらく後述するdispatcher.next()が呼ばれたときにstateFnでクロージャされたactionsが変更されてSubscriptionが反応する仕組みなのだろう。(適当)
 const stateAndDispatcher = [
   provide(INIT_STATE, { useValue: { todos: [], visibilityFilter: 'SHOW_ALL' } }),
   provide(DISPATCHER, { useValue: new Subject<Action>(null) }), // ObservableではなくSubjectである。SubjectはObservableでもありObserverでもある。そこが重要。(適当)
