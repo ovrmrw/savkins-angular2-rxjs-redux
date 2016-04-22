@@ -118,7 +118,7 @@ function stateFn(initState: AppState, actions: Observable<Action>): Observable<A
   const subject = new BehaviorSubject(initState); // "rxjs BehaviorSubject"でググる。
 
   // Actionがトリガーされる度にこのSubscriptionが反応する。いわゆるイベントリスナー。
-  // Viewでdispatcher.next()が実行されたとき、stateFn()の引数actionsが変更され、つられてSubscriptionが反応する。僕はそう解釈した。
+  // Viewでdispatcher.next()が実行されたとき、stateFn()の引数actionsにActionがemitされ(変更され)、つられてSubscriptionが反応する。僕はそう解釈した。
   Observable
     .zip( // "rxjs zip"でググる。
       todosStateObserver(subject.value.todos, actions), // dispatcherが変更されるとactionsが変更されてここが発火する。(多分)
@@ -158,6 +158,7 @@ const stateAndDispatcher = [
 /* 
   コンポーネント群。View描画に必要なもの。
   重要なのは@Inject()が書いてある行とそれらが影響している箇所だけだ。その他は流し読みで構わない。 
+  3か所出てくるthis.dispatcher.next()が一体何をしているのか、内部で何が起きているのか、僕は最後までそれを理解するのに苦労した。
 */
 // TodoListコンポーネントの子コンポーネント。
 @Component({
@@ -201,7 +202,7 @@ class TodoListComponent {
   }
 
   emitToggle(id: number) {
-    this.dispatcher.next(new ToggleTodoAction(id)); // stateFn()にクロージャされている引数actionsを変更し、それにつられてObservableイベントが発火する。(多分)
+    this.dispatcher.next(new ToggleTodoAction(id)); // Subjectのnext()をコールすることで即座にストリームを流している。つまりstateFn()の引数actionsにToggleTodoActionをemitしていると同時にObservableイベントを強制発火させている。
   }
 }
 
@@ -220,7 +221,7 @@ class AddTodoComponent {
   ) { }
 
   addTodo(value: string) {
-    this.dispatcher.next(new AddTodoAction(nextId++, value)); // stateFn()にクロージャされている引数actionsを変更し、それにつられてObservableイベントが発火する。(多分)
+    this.dispatcher.next(new AddTodoAction(nextId++, value)); // Subjectのnext()をコールすることで即座にストリームを流している。つまりstateFn()の引数actionsにAddTodoActionをemitしていると同時にObservableイベントを強制発火させている。
   }
 }
 
@@ -247,7 +248,7 @@ class FilterLinkComponent {
   }
 
   setVisibilityFilter() {
-    this.dispatcher.next(new SetVisibilityFilter(this.filter)); // stateFn()の引数actionsを変更していると同時にイベントをトリガーしている。(多分)
+    this.dispatcher.next(new SetVisibilityFilter(this.filter)); // Subjectのnext()をコールすることで即座にストリームを流している。つまりstateFn()の引数actionsにAddTodoActionをemitしていると同時にObservableイベントを強制発火させている。
   }
 }
 
