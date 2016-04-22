@@ -76,7 +76,7 @@ type Action = AddTodoAction | ToggleTodoAction | SetVisibilityFilter;
 /*
   状態管理をする関数。stateFnは特に重要。興味を持ったもののここで挫ける人が多数いそう。
 */
-// stateFn関数のヘルパー。
+// stateFn関数のヘルパー。Observableを返しているのがポイント。
 function todosStateObserver(initState: Todo[], actions: Observable<Action>): Observable<Todo[]> {
   // actions.scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
   return actions.scan((todos: Todo[], action: Action) => { // "rxjs scan"でググる。
@@ -99,7 +99,7 @@ function todosStateObserver(initState: Todo[], actions: Observable<Action>): Obs
   }, initState);
 }
 
-// stateFn関数のヘルパー。
+// stateFn関数のヘルパー。Observableを返しているのがポイント。
 function filterStateObserver(initState: string, actions: Observable<Action>): Observable<string> {
   // actions.scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
   return actions.scan((filter: string, action: Action) => { // "rxjs scan"でググる。
@@ -111,7 +111,9 @@ function filterStateObserver(initState: string, actions: Observable<Action>): Ob
   }, initState);
 }
 
-// 超重要。ただし理解は困難。最初に一度だけ呼ばれてイベントリスナーを登録する。
+// 超重要。ただし理解は困難。最初に一度だけ呼ばれてイベントリスナーを登録する。後述するdispatcherが引数actionsにクロージャされるのが最重要ポイント。(という解釈)
+// 上記2つのヘルパー関数を監視してzipでまとめてsubscribeする。
+// ここはオリジナルのソースから結構書き換えた。自分なりに読みやすい形にしたかったので。特にRxjsのイベントリスナーはObservableで始まってsubscribeで終わった方が見通しが良い。
 function stateFn(initState: AppState, actions: Observable<Action>): Observable<AppState> {
   const subject = new BehaviorSubject(initState); // "rxjs BehaviorSubject"でググる。
 
@@ -119,14 +121,15 @@ function stateFn(initState: AppState, actions: Observable<Action>): Observable<A
   // Viewでdispatcher.next()が実行されたとき、stateFn()の引数actionsが変更され、つられてSubscriptionが反応する。僕はそう解釈した。
   Observable
     .zip( // "rxjs zip"でググる。
-      todosStateObserver(subject.value.todos, actions),
-      filterStateObserver(subject.value.visibilityFilter, actions),
+      todosStateObserver(subject.value.todos, actions), // dispatcherが変更されるとactionsが変更されてここが発火する。(多分)
+      filterStateObserver(subject.value.visibilityFilter, actions), // dispatcherが変更されるとactionsが変更されてここが発火する。(多分)
       (todos, visibilityFilter) => { // zipが返す値を整形できる。
         return { todos, visibilityFilter } as AppState; // {'todos':todos,'visibilityFilter':visibilityFilter}の省略形。
       }
     )
+    // .do(s => console.log(s)) // 別にこれは要らない。ストリームの中間で値がどうなっているか確認したいときに使う。
     .subscribe(appState => {
-      subject.next(appState); // "rxjs subject next"でググる。
+      subject.next(appState); // "rxjs subject next"でググる。subject.next()により状態が更新される。Viewは更新された状態をリードオンリーで受け取る。
     });
 
   return subject;
@@ -136,6 +139,7 @@ function stateFn(initState: AppState, actions: Observable<Action>): Observable<A
 // -- DI config
 /*
   DI設定。Fluxの要。よくわからない。特にdispatcherがよくわからない。難しい。こんなことを考案したのは一体誰だ。
+  それでもここが理解できないとSavkin's Reduxは理解できない。特にstateFn関数にdispatcherがクロージャされることを把握できていないとどこで何が起きているのかわからないはずだ。
 */
 const INIT_STATE = new OpaqueToken("initState"); // "angular2 opaquetoken"でググる。
 const DISPATCHER = new OpaqueToken("dispatcher");
@@ -146,14 +150,14 @@ const STATE = new OpaqueToken("state");
 const stateAndDispatcher = [
   provide(INIT_STATE, { useValue: { todos: [], visibilityFilter: 'SHOW_ALL' } }),
   provide(DISPATCHER, { useValue: new Subject<Action>(null) }), // ObservableではなくSubjectである。SubjectはObservableでもありObserverでもある。そこが重要。(適当)
-  provide(STATE, { useFactory: stateFn, deps: [new Inject(INIT_STATE), new Inject(DISPATCHER)] }) // 前の2行をstateFnの引数とする。Viewではこれを通じてstateを参照する。
+  provide(STATE, { useFactory: stateFn, deps: [new Inject(INIT_STATE), new Inject(DISPATCHER)] }) // 前の2行をstateFn関数の引数とする。stateFnの引数actionsにdispatcherをクロージャしている。(多分)
 ];
 
 
 // -- Components
 /* 
   コンポーネント群。View描画に必要なもの。
-  重要なのは@Inject()が書いてる行とそれらが影響している箇所だけだ。その他は流し読みで構わない。 
+  重要なのは@Inject()が書いてある行とそれらが影響している箇所だけだ。その他は流し読みで構わない。 
 */
 // TodoListコンポーネントの子コンポーネント。
 @Component({
@@ -186,18 +190,18 @@ class TodoComponent {
 })
 class TodoListComponent {
   constructor(
-    @Inject(DISPATCHER) private dispatcher: Observer<Action>,
+    @Inject(DISPATCHER) private dispatcher: Observer<Action>, // ObservableではなくObservaer。
     @Inject(STATE) private state: Observable<AppState>
   ) { }
 
   get filtered() {
-    return this.state.map(state => { // stateはリードオンリー。
+    return this.state.map((state: AppState) => { // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
       return getVisibleTodos(state.todos, state.visibilityFilter);
     });
   }
 
   emitToggle(id: number) {
-    this.dispatcher.next(new ToggleTodoAction(id)); // stateFn()の引数actionsを変更していると同時にイベントをトリガーしている。(多分)
+    this.dispatcher.next(new ToggleTodoAction(id)); // stateFn()にクロージャされている引数actionsを変更し、それにつられてObservableイベントが発火する。(多分)
   }
 }
 
@@ -212,11 +216,11 @@ let nextId = 0;
 })
 class AddTodoComponent {
   constructor(
-    @Inject(DISPATCHER) private dispatcher: Observer<Action>
+    @Inject(DISPATCHER) private dispatcher: Observer<Action> // ObservableではなくObservaer。
   ) { }
 
   addTodo(value: string) {
-    this.dispatcher.next(new AddTodoAction(nextId++, value)); // stateFn()の引数actionsを変更していると同時にイベントをトリガーしている。(多分)
+    this.dispatcher.next(new AddTodoAction(nextId++, value)); // stateFn()にクロージャされている引数actionsを変更し、それにつられてObservableイベントが発火する。(多分)
   }
 }
 
@@ -231,13 +235,13 @@ class AddTodoComponent {
 class FilterLinkComponent {
   @Input() filter: string;
   constructor(
-    @Inject(DISPATCHER) private dispatcher: Observer<Action>,
+    @Inject(DISPATCHER) private dispatcher: Observer<Action>, // ObservableではなくObservaer。
     @Inject(STATE) private state: Observable<AppState>
   ) { }
 
   // 選択中のフィルター名にアンダーラインを引く。
   get textEffect() {
-    return this.state.map(state => { // stateはリードオンリー。
+    return this.state.map((state: AppState) => { // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
       return state.visibilityFilter === this.filter ? 'underline' : 'none';
     });
   }
