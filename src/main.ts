@@ -140,6 +140,7 @@ function stateFn(initState: AppState, actions: Observable<Action>): Observable<A
 /*
   DI設定。Fluxの要。よくわからない。特にdispatcherがよくわからない。難しい。こんなことを考案したのは一体誰だ。
   それでもここが理解できないとSavkin's Reduxは理解できない。特にstateFn関数にdispatcherがクロージャされることを把握できていないとどこで何が起きているのかわからないはずだ。
+  https://laco0416.github.io/post/platform-prividers-of-angular-2/ を参考にすると理解の助けになるかもしれない。
 */
 const INIT_STATE = new OpaqueToken("initState"); // "angular2 opaquetoken"でググる。
 const DISPATCHER = new OpaqueToken("dispatcher");
