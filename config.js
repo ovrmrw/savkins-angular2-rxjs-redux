@@ -30,8 +30,8 @@ System.config({
   },
   packages: {
     app: {
-      main: './main.js', // main: './main.ts',
-      defaultExtension: 'js' // defaultExtension: 'ts'
+      main: './main.ts',
+      defaultExtension: 'ts'
     }
   }
 });
