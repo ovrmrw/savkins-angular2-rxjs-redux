@@ -75,7 +75,7 @@ type Action = AddTodoAction | ToggleTodoAction | SetVisibilityFilter; // これ�
 // -- statefn
 /*
   状態管理をする関数。オリジナルのstateFnがfunctionだったので全面的にclassに書き直した。ついでに名前をStateKeeperとした。
-  classにすることで見通しが良くなり、扱いも簡単になる。
+  classにすることで見通しが良くなり、扱いも簡単になる。特にViewでDIするときに@Inject()が不要になる。
 */
 // @Injectable() // Injectableはインスタンス生成をInjectorに任せる場合に必須。このサンプルではtoFactoryで生成するので不要。(@laco0416 さんありがとう！)
 class StateKeeper {
@@ -225,7 +225,9 @@ class TodoListComponent {
   }
 
   emitToggle(id: number) {
-    this.dispatcher.next(new ToggleTodoAction(id)); // Subjectのnext()をコールすることで即座にストリームを流している。つまりstateFn()の引数actionsにToggleTodoActionをemitしていると同時にObservableイベントを強制発火させている。
+    // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
+    // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
+    this.dispatcher.next(new ToggleTodoAction(id));
   }
 }
 
@@ -244,7 +246,9 @@ class AddTodoComponent {
   ) { }
 
   addTodo(value: string) {
-    this.dispatcher.next(new AddTodoAction(nextId++, value)); // Subjectのnext()をコールすることで即座にストリームを流している。つまりstateFn()の引数actionsにAddTodoActionをemitしていると同時にObservableイベントを強制発火させている。
+    // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
+    // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
+    this.dispatcher.next(new AddTodoAction(nextId++, value));
   }
 }
 
@@ -271,7 +275,9 @@ class FilterLinkComponent {
   }
 
   setVisibilityFilter() {
-    this.dispatcher.next(new SetVisibilityFilter(this.filter)); // Subjectのnext()をコールすることで即座にストリームを流している。つまりstateFn()の引数actionsにSetVisibilityFilterをemitしていると同時にObservableイベントを強制発火させている。
+    // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
+    // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
+    this.dispatcher.next(new SetVisibilityFilter(this.filter)); 
   }
 }
 
