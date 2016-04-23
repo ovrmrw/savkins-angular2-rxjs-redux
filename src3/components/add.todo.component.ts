@@ -12,7 +12,7 @@ import {Dispatcher} from '../flux/flux-di';
   `
 })
 export class AddTodoComponent {
-  nextId = 0;
+  private nextId = 0;
 
   constructor(
     private dispatcher: Dispatcher<Action> // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
