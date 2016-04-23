@@ -190,17 +190,16 @@ const practiceForYou = [
   selector: 'todo',
   template: `
     <span (click)="toggle.next()" [style.textDecoration]="textEffect">
-      {{text}}
+      {{todo.text}}
     </span>
   `
 })
 class TodoComponent {
-  @Input() text: string;
-  @Input() completed: boolean;
+  @Input() todo: Todo;
   @Output() toggle = new EventEmitter();
 
   get textEffect() {
-    return this.completed ? 'line-through' : 'none';
+    return this.todo.completed ? 'line-through' : 'none';
   }
 }
 
@@ -209,7 +208,7 @@ class TodoComponent {
   selector: 'todo-list',
   template: `
     <todo *ngFor="#t of filtered|async"
-      [text]="t.text" [completed]="t.completed"
+      [todo]="t"
       (toggle)="emitToggle(t.id)"></todo>
   `,
   directives: [TodoComponent]
