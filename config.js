@@ -1,4 +1,4 @@
-// こっちはオリジナル。
+// これはオリジナル。srcを動かす設定。
 System.config({
   //use typescript for compilation
   transpiler: 'typescript',
@@ -19,7 +19,7 @@ System.config({
   }
 });
 
-// 元々書いてあったSystem.configを上書きしている。
+// src2を動かす設定。これより前のSystem.configを上書きする。
 System.config({
   transpiler: 'typescript',
   typescriptOptions: {
@@ -36,7 +36,7 @@ System.config({
   }
 });
 
-// ここから下のコメントアウトを外すとsrc3フォルダで動作する。src3はsrc2/main.tsの内容を細分化しただけでやってることは同じ。
+// src3を動かす設定。これより前のSystem.configを上書きする。
 System.config({
   transpiler: 'typescript',
   typescriptOptions: {

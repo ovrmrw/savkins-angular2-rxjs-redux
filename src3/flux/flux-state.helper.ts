@@ -6,7 +6,9 @@ import {merge} from '../helper';
 
 
 /*
-  StateKeeperのconstructorのヘルパー関数群
+  StateKeeperのconstructorのヘルパー関数群。
+  変更の必要があるものだけ値を差し替えて返す。そうでないものはそのまま返す。
+  Actionの型に応じて処理が分岐していくのが特徴だが、Actionの数が増えれば増えるほどカオスになる危険性はある。
 */
 export function todosStateObserver(initState: Todo[], actions: Observable<Action>): Observable<Todo[]> {
   // actions.scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
