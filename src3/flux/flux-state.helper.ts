@@ -24,7 +24,7 @@ export function todosStateObserver(initState: Todo[], actions: Observable<Action
       return todos.map(todo => {
         if (action instanceof ToggleTodoAction) { // これによりactionは型が確定する。
           return (action.id !== todo.id) ? todo : merge(todo, { completed: !todo.completed });
-        } else {
+        } else { // actionがAddTodoActionでもToggleTodoActionでもない場合。
           return todo;
         }
       });
@@ -37,7 +37,7 @@ export function filterStateObserver(initState: string, actions: Observable<Actio
   return actions.scan((filter: string, action: Action) => { // "rxjs scan"でググる。
     if (action instanceof SetVisibilityFilter) { // これによりactionは型が確定する。
       return action.filter;
-    } else {
+    } else { // actionがSetVisibilityFilterではない場合。
       return filter;
     }
   }, initState);

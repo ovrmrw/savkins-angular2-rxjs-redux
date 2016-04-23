@@ -14,29 +14,29 @@ import {merge} from '../helper';
 */
 // @Injectable() // Injectableはインスタンス生成をInjectorに任せる場合に必須。このサンプルではtoFactoryで生成するので不要。(@laco0416 さんありがとう！)
 export class StateKeeper {
-  private subject: BehaviorSubject<AppState>; // "rxjs behaviorsubject"でググる。初期値を持てるのがポイント。
+  private stateSubject: BehaviorSubject<AppState>; // "rxjs behaviorsubject"でググる。初期値を持てるのがポイント。
 
-  constructor(initState: AppState, actions: Observable<Action>) { // actionsの型はDispatcher<Action>でも良い。
-    this.subject = new BehaviorSubject(initState); // BehaviorSubjectに初期値をセットする。
+  constructor(initState: AppState, actions: Observable<Action>) { // actionsの型はDispatcher<Action>でも良いが敢えてそうする必要もない。
+    this.stateSubject = new BehaviorSubject(initState); // BehaviorSubjectに初期値をセットする。
 
     // イベント発生毎にsubjectの内容を更新するイベントリスナー。そう、これはイベントリスナーだ。
     // Observableで始まりsubscribeで終わるイベントリスナー(僕はSubscriptionと呼ぶ)はRxJSの基本なので覚えよう。
     // このSubscriptionはViewでActionをemitしたとき(dispatcher.next()がコールされたとき)に、内包されているactionsの変更を検知して発火する。これ重要。
     Observable
       .zip<AppState>( // "rxjs zip"でググる。
-        todosStateObserver(this.subject.value.todos, actions), // dispatcher.next()によりActionがemitされるとactionsの変更を検知してここが発火する。
-        filterStateObserver(this.subject.value.visibilityFilter, actions), //  〃
+        todosStateObserver(this.stateSubject.value.todos, actions), // dispatcher.next()によりActionがemitされるとactionsの変更を検知してここが発火する。
+        filterStateObserver(this.stateSubject.value.visibilityFilter, actions), //  〃
         (todos, visibilityFilter) => { // zipが返す値を整形できる。
           return { todos, visibilityFilter } as AppState; // {'todos':todos,'visibilityFilter':visibilityFilter}の省略形。
         }
       )
       // .do(s => console.log(s)) // 別にこれは要らない。ストリームの中間で値がどうなっているか確認したいときに使う。
       .subscribe(appState => {
-        this.subject.next(appState); // "rxjs subject next"でググる。subject.next()により状態が更新される。Viewは更新された状態をstateプロパティを通してリードオンリーで受け取る。
+        this.stateSubject.next(appState); // "rxjs subject next"でググる。subject.next()により状態が更新される。Viewは更新された状態をstateプロパティを通してリードオンリーで受け取る。
       });
   }
 
   get state() { // Viewで状態を取得するときはこれを通じて取得する。this.subjectはprivateなのでリードオンリーとなる。
-    return this.subject; // オリジナルに沿うならas Observable<AppState>を付けても良い。
+    return this.stateSubject as Observable<AppState>; // View側で参照したときに見慣れたObservableになっているという親切設計。
   }
 }
