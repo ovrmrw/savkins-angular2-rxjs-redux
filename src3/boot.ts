@@ -2,7 +2,6 @@ import {enableProdMode} from 'angular2/core';
 import {bootstrap} from 'angular2/platform/browser';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/scan';
-import 'rxjs/add/operator/zip';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/observable/zip';
 

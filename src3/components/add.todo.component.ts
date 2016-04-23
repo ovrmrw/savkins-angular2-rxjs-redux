@@ -1,5 +1,4 @@
-import {Component, Inject} from 'angular2/core';
-import {Observer} from 'rxjs/Observer';
+import {Component} from 'angular2/core';
 
 import {Action, AddTodoAction} from '../flux/flux-action';
 import {Dispatcher} from '../flux/flux-di';
@@ -16,7 +15,7 @@ export class AddTodoComponent {
   nextId = 0;
 
   constructor(
-    private dispatcher: Dispatcher<Action> // オリジナルではここはObservaer<Action>になっている。
+    private dispatcher: Dispatcher<Action> // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
   ) { }
 
   addTodo(value: string) {

@@ -1,4 +1,4 @@
-import {OpaqueToken, bind} from 'angular2/core';
+import {bind} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 import {Subject} from 'rxjs/Subject';

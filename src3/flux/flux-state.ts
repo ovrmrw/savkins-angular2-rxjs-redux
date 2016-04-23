@@ -3,6 +3,7 @@ import {BehaviorSubject} from 'rxjs/subject/BehaviorSubject';
 
 import {Action, AddTodoAction, ToggleTodoAction, SetVisibilityFilter} from './flux-action';
 
+import {todosStateObserver, filterStateObserver} from './flux-state.helper';
 import {merge} from '../helper';
 
 
@@ -38,40 +39,4 @@ export class StateKeeper {
   get state() { // Viewで状態を取得するときはこれを通じて取得する。this.subjectはprivateなのでリードオンリーとなる。
     return this.subject; // オリジナルに沿うならas Observable<AppState>を付けても良い。
   }
-}
-
-
-// StateKeeperのconstructorのヘルパー関数。
-function todosStateObserver(initState: Todo[], actions: Observable<Action>): Observable<Todo[]> {
-  // actions.scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
-  return actions.scan((todos: Todo[], action: Action) => { // "rxjs scan"でググる。
-    if (action instanceof AddTodoAction) { // これによりactionは型が確定する。
-      const newTodo = {
-        id: action.todoId,
-        text: action.text,
-        completed: false
-      } as Todo;
-      return [...todos, newTodo]; // ...todosは配列を展開している。
-    } else {
-      return todos.map(todo => {
-        if (action instanceof ToggleTodoAction) { // これによりactionは型が確定する。
-          return (action.id !== todo.id) ? todo : merge(todo, { completed: !todo.completed });
-        } else {
-          return todo;
-        }
-      });
-    }
-  }, initState);
-}
-
-// StateKeeperのconstructorのヘルパー関数。
-function filterStateObserver(initState: string, actions: Observable<Action>): Observable<string> {
-  // actions.scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
-  return actions.scan((filter: string, action: Action) => { // "rxjs scan"でググる。
-    if (action instanceof SetVisibilityFilter) { // これによりactionは型が確定する。
-      return action.filter;
-    } else {
-      return filter;
-    }
-  }, initState);
 }

@@ -1,5 +1,4 @@
-import {Component, Input, Inject} from 'angular2/core';
-import {Observer} from 'rxjs/Observer';
+import {Component, Input} from 'angular2/core';
 
 import {Action, SetVisibilityFilter} from '../flux/flux-action';
 import {StateKeeper} from '../flux/flux-state';
@@ -17,8 +16,8 @@ import {Dispatcher} from '../flux/flux-di';
 export class FilterLinkComponent {
   @Input() filter: string;
   constructor(
-    private dispatcher: Dispatcher<Action>, // オリジナルではここはObservaer<Action>になっている。
-    private stateKeeper: StateKeeper // この場合@Inject()は省略しても良い。普通は省略する。
+    private dispatcher: Dispatcher<Action>, // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
+    private stateKeeper: StateKeeper // StateKeeperからリードオンリーのstateを受け取るためにDIしている。
   ) { }
 
   // 選択中のフィルター名にアンダーラインを引く。

@@ -1,5 +1,4 @@
-import {Component, Inject} from 'angular2/core';
-import {Observer} from 'rxjs/Observer';
+import {Component} from 'angular2/core';
 
 import {Action, ToggleTodoAction} from '../flux/flux-action';
 import {StateKeeper} from '../flux/flux-state';
@@ -22,8 +21,8 @@ import {getVisibleTodos} from '../helper';
 })
 export class TodoListComponent {
   constructor(
-    private dispatcher: Dispatcher<Action>, // オリジナルではここはObservaer<Action>になっている。
-    private stateKeeper: StateKeeper // この場合@Inject()は省略しても良い。普通は省略する。
+    private dispatcher: Dispatcher<Action>, // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
+    private stateKeeper: StateKeeper // StateKeeperからリードオンリーのstateを受け取るためにDIしている。
   ) { }
 
   get filtered() {
