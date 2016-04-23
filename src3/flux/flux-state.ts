@@ -15,7 +15,7 @@ import {merge} from '../helper';
 export class StateKeeper {
   private subject: BehaviorSubject<AppState>; // "rxjs behaviorsubject"でググる。初期値を持てるのがポイント。
 
-  constructor(initState: AppState, actions: Observable<Action>) { // actionsの型はSubject<Action>でも良い。
+  constructor(initState: AppState, actions: Observable<Action>) { // actionsの型はDispatcher<Action>でも良い。
     this.subject = new BehaviorSubject(initState); // BehaviorSubjectに初期値をセットする。
 
     // イベント発生毎にsubjectの内容を更新するイベントリスナー。そう、これはイベントリスナーだ。

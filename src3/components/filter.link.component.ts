@@ -3,7 +3,7 @@ import {Observer} from 'rxjs/Observer';
 
 import {Action, SetVisibilityFilter} from '../flux/flux-action';
 import {StateKeeper} from '../flux/flux-state';
-import {DISPATCHER} from '../flux/flux-di';
+import {Dispatcher} from '../flux/flux-di';
 
 
 // Footerコンポーネントの子コンポーネント。
@@ -17,7 +17,7 @@ import {DISPATCHER} from '../flux/flux-di';
 export class FilterLinkComponent {
   @Input() filter: string;
   constructor(
-    @Inject(DISPATCHER) private dispatcher: Observer<Action>, // ObservableではなくObservaer。
+    private dispatcher: Dispatcher<Action>, // オリジナルではここはObservaer<Action>になっている。
     private stateKeeper: StateKeeper // この場合@Inject()は省略しても良い。普通は省略する。
   ) { }
 

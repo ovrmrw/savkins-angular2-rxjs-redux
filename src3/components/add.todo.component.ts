@@ -2,7 +2,7 @@ import {Component, Inject} from 'angular2/core';
 import {Observer} from 'rxjs/Observer';
 
 import {Action, AddTodoAction} from '../flux/flux-action';
-import {DISPATCHER} from '../flux/flux-di';
+import {Dispatcher} from '../flux/flux-di';
 
 
 // TodoAppコンポーネントの子コンポーネント。
@@ -16,7 +16,7 @@ export class AddTodoComponent {
   nextId = 0;
 
   constructor(
-    @Inject(DISPATCHER) private dispatcher: Observer<Action> // ObservableではなくObservaer。
+    private dispatcher: Dispatcher<Action> // オリジナルではここはObservaer<Action>になっている。
   ) { }
 
   addTodo(value: string) {

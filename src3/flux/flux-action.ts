@@ -11,4 +11,5 @@ export class ToggleTodoAction {
 export class SetVisibilityFilter {
   constructor(public filter: string) { }
 }
+
 export type Action = AddTodoAction | ToggleTodoAction | SetVisibilityFilter; // これ重要。Actionはこの後何回も出てくる。
