@@ -35,3 +35,20 @@ System.config({
     }
   }
 });
+
+// ここから下のコメントアウトを外すとsrc3フォルダで動作する。src3はsrc2/main.tsの内容を細分化しただけでやってることは同じ。
+// System.config({
+//   transpiler: 'typescript',
+//   typescriptOptions: {
+//     emitDecoratorMetadata: true
+//   },
+//   map: {
+//     app: "./src3" // app: "./src"
+//   },
+//   packages: {
+//     app: {
+//       main: './boot.ts',
+//       defaultExtension: 'ts'
+//     }
+//   }
+// });
