@@ -120,7 +120,7 @@ function stateFn(initState: AppState, actions: Observable<Action>): Observable<A
   // Actionがトリガーされる度にこのSubscriptionが反応する。いわゆるイベントリスナー。
   // Viewでdispatcher.next()が実行されたとき、stateFn()の引数actionsにActionがemitされ(変更され)、つられてSubscriptionが反応する。僕はそう解釈した。
   Observable
-    .zip( // "rxjs zip"でググる。
+    .zip<AppState>( // "rxjs zip"でググる。
       todosStateObserver(subject.value.todos, actions), // dispatcherが変更されるとactionsが変更されてここが発火する。(多分)
       filterStateObserver(subject.value.visibilityFilter, actions), // dispatcherが変更されるとactionsが変更されてここが発火する。(多分)
       (todos, visibilityFilter) => { // zipが返す値を整形できる。

@@ -1,3 +1,4 @@
+// こっちはオリジナル。
 System.config({
   //use typescript for compilation
   transpiler: 'typescript',
@@ -14,6 +15,23 @@ System.config({
     app: {
       main: './main.ts',
       defaultExtension: 'ts'
+    }
+  }
+});
+
+// 元々書いてあったSystem.configを上書きしている。
+System.config({
+  transpiler: 'typescript',
+  typescriptOptions: {
+    emitDecoratorMetadata: true
+  },
+  map: {
+    app: "./src2" // app: "./src"
+  },
+  packages: {
+    app: {
+      main: './main.js', // main: './main.ts',
+      defaultExtension: 'js' // defaultExtension: 'ts'
     }
   }
 });
