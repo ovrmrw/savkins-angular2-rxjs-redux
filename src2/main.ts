@@ -77,7 +77,7 @@ type Action = AddTodoAction | ToggleTodoAction | SetVisibilityFilter; // これ�
   状態管理をする関数。オリジナルのstateFnがfunctionだったので全面的にclassに書き直した。ついでに名前をStateKeeperとした。
   classにすることで見通しが良くなり、扱いも簡単になる。
 */
-// @Injectable() // 本当は@Injectableが必要だと思うのだけどコメントアウトしても動いた。よくわからない。
+// @Injectable() // Injectableはインスタンス生成をInjectorに任せる場合に必須。このサンプルではtoFactoryで生成するので不要。(@laco0416 さんありがとう！)
 class StateKeeper {
   private subject: BehaviorSubject<AppState>; // "rxjs behaviorsubject"でググる。初期値を持てるのがポイント。
 
@@ -142,7 +142,6 @@ class StateKeeper {
 }
 
 // これはオマケ。
-// @Injectable() // 本当は@Injectableが必要だと思うのだけどコメントアウトしても動いた。よくわからない。
 class Test {
   constructor(private str1: string, private str2: string) {
     this.log();
@@ -306,6 +305,6 @@ class TodoApp {
   ) { }
 }
 
-enableProdMode(); // 動作が2倍くらい速くなる。プロダクション環境では推奨。
+enableProdMode(); // 動作が2倍くらい速くなる。プロダクション環境では推奨。(@laco0416 さんありがとう！)
 bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットしたProvider達はこのときに一度だけインスタンス化される。
   .catch(err => console.error(err));
