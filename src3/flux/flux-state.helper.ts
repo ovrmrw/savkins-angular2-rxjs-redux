@@ -34,7 +34,7 @@ export function todosStateObserver(initTodos: Todo[], actions: Observable<Action
     } else { // actionがAddTodoActionでもToggleTodoActionでもない場合。
       return todos; // 引数の値をそのまま返す。
     }
-  }, initTodos); // (イベントに反応して)scanが走るたびに前回の結果をここにセットした状態から処理が始まる。
+  }, initTodos); // 初回実行時にこの値から処理が始まる。その後は"前回の結果の続き"から処理を始める。
 }
 
 // actionsの型はオリジナルではObservable<Action>だがFilterの操作に必要なものだけ絞り込む意味でActionTypeFilterを使っている。
@@ -47,7 +47,7 @@ export function filterStateObserver(initFilter: string, actions: Observable<Acti
     } else { // actionがSetVisibilityFilterではない場合。
       return filter; // 引数の値をそのまま返す。
     }
-  }, initFilter); // (イベントに反応して)scanが走るたびに前回の結果をここにセットした状態から処理が始まる。
+  }, initFilter); // 初回実行時にこの値から処理が始まる。その後は"前回の結果の続き"から処理を始める。
 }
 
 
