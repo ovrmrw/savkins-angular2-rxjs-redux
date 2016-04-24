@@ -25,7 +25,6 @@ export function todosStateObserver(initTodos: Todo[], actions$: Observable<Actio
         text: action.text,
         completed: false
       } as Todo;
-      console.log(newTodo);
       return [...todos, newTodo]; // ...todosは配列を展開している。todos.concat(newTodo)と同等。
     } else if (action instanceof ToggleTodoAction) { // actionがToggleTodoActionの場合。
       return todos.map(todo => { // このmapは配列をイテレートしている。Observableのmapとごっちゃにならないこと。
@@ -41,7 +40,6 @@ export function todosStateObserver(initTodos: Todo[], actions$: Observable<Actio
 export function filterStateObserver(initFilter: string, actions$: Observable<ActionTypeFilter>): Observable<string> {
   // scanの理解はとても長い道のりである。配列のreduceとは似ているが全く違う。概念の違いだ。RxJSは時間をまたいでreduceする。いずれ理解できるだろう。
   return actions$.scan<string>((filter: string, action: ActionTypeFilter) => { // "rxjs scan"でググる。
-    console.log(filter);
     if (action instanceof SetVisibilityFilter) { // actionがSetVisibilityFilterの場合。
       return action.filter;
     } else { // actionがSetVisibilityFilterではない場合。
