@@ -1,11 +1,10 @@
 # savkins-angular2-rxjs-redux
-## 通称 Savkin's Flux
 
 Angular2チームの中の人が書いた
 [MANAGING STATE IN ANGULAR 2 APPLICATIONS](http://victorsavkin.com/post/137821436516/managing-state-in-angular-2-applications)
 を理解したくてオリジナルのソースにちょこちょこ手を加えながらコメントを入れました。
 
-Redux(Flux)をAngular2向けにRxJSを取り入れながらアレンジしたものらしいです。  
+Redux(Flux)をAngular2向けにRxJSを取り入れながらアレンジしたものらしいです。(通称Savkin's Flux)    
 `src2/main.ts`を眺めたら大体理解できるようにしました。(現在は`src2`はメンテしていません。`src3`を参照してください)
 
 RxJSを使うことでOnPushによるChangeDetectionが使えるため処理速度が向上するとのこと。著者であるSavkinの熱量も中々のものです。  
