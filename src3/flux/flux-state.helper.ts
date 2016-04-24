@@ -12,9 +12,9 @@ import {ActionTypeTodo, ActionTypeFilter, AddTodoAction, ToggleTodoAction, SetVi
 */
 
 // actionsの型はオリジナルではObservable<Action>だがTodoの操作に必要なものだけ絞り込む意味でActionTypeTodoを使っている。
-export function todosStateObserver(todos: Todo[], actions: Observable<ActionTypeTodo>): Observable<Todo[]> {
-  // mapしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
-  return actions.map<Todo[]>((action: ActionTypeTodo) => { // "rxjs map"でググる。
+export function todosStateObserver(initTodos: Todo[], actions: Observable<ActionTypeTodo>): Observable<Todo[]> {
+  // scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
+  return actions.scan<Todo[]>((todos: Todo[], action: ActionTypeTodo) => { // "rxjs scan"でググる。
     if (action instanceof AddTodoAction) { // actionがAddTodoActionの場合。
       const newTodo = {
         id: action.todoId,
@@ -29,19 +29,19 @@ export function todosStateObserver(todos: Todo[], actions: Observable<ActionType
     } else { // actionがAddTodoActionでもToggleTodoActionでもない場合。
       return todos; // 引数の値をそのまま返す。
     }
-  });
+  }, initTodos); // 回りくどいことをしているようだがこうやってscanでtodosを内部に送り込まなければならない。
 }
 
 // actionsの型はオリジナルではObservable<Action>だがFilterの操作に必要なものだけ絞り込む意味でActionTypeFilterを使っている。
-export function filterStateObserver(filter: string, actions: Observable<ActionTypeFilter>): Observable<string> {
-  // mapしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
-  return actions.map<string>((action: ActionTypeFilter) => { // "rxjs map"でググる。
+export function filterStateObserver(initFilter: string, actions: Observable<ActionTypeFilter>): Observable<string> {
+  // scanしてるけどactionsには一つしか格納されていないので実際はObservableを外しているだけ。
+  return actions.scan<string>((filter: string, action: ActionTypeFilter) => { // "rxjs scan"でググる。
     if (action instanceof SetVisibilityFilter) { // actionがSetVisibilityFilterの場合。
       return action.filter;
     } else { // actionがSetVisibilityFilterではない場合。
       return filter; // 引数の値をそのまま返す。
     }
-  });
+  }, initFilter); // 回りくどいことをしているようだがこうやってscanでfilterを内部に送り込まなければならない。
 }
 
 
