@@ -37,7 +37,7 @@ export class StateKeeper {
       });
   }
 
-  get state() { // Viewで状態を取得するときはこれを通じて取得する。this.subjectはprivateなのでリードオンリーとなる。
+  get state() { // Viewで状態を取得するときはこれを通じて取得する。stateSubjectはprivateなのでリードオンリーとなる。
     return this.stateSubject as Observable<AppState>; // View側で参照したときに見慣れたObservableになっているという親切設計。
   }
 }
