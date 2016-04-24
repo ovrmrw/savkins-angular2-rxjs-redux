@@ -18,7 +18,7 @@ import {Component, Input, Output, EventEmitter} from 'angular2/core';
 })
 export class TodoComponent {
   @Input() todo: Todo;
-  @Output() toggle = new EventEmitter();
+  @Output() toggle = new EventEmitter(); // "angular2 eventemitter"でググる。
 
   get textEffect() {
     return this.todo.completed ? 'line-through' : 'none';

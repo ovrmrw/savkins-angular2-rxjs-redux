@@ -1,6 +1,6 @@
 // -- actions
 /*
-  Reduxの要、アクション。とにかく理解するのが大変。Viewからはこれらを呼ぶことになる。なんで中身が空なの？それでいいんです！
+  Fluxの要、アクション。とにかく理解するのが大変。Viewからはこれらを呼ぶことになる。なんで中身が空なの？それでいいんです！
 */
 export class AddTodoAction {
   constructor(public todoId: number, public text: string) { }
@@ -12,4 +12,9 @@ export class SetVisibilityFilter {
   constructor(public filter: string) { }
 }
 
-export type Action = AddTodoAction | ToggleTodoAction | SetVisibilityFilter; // これ重要。Actionはこの後何回も出てくる。
+// これら2つはflux-state.helper.tsで使われる。必要なものだけを見せるという配慮。
+export type ActionTypeTodo = AddTodoAction | ToggleTodoAction; // Todoに関するアクションを束ねたもの。
+export type ActionTypeFilter = SetVisibilityFilter; // Filterに関するアクションを束ねたもの。
+
+// これはあらゆる場所で使われる。超重要。
+export type Action = ActionTypeTodo | ActionTypeFilter; // 全てのアクションを束ねたもの。Actionはこの後何回も出てくる。

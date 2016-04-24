@@ -21,6 +21,6 @@ export class AddTodoComponent {
   addTodo(value: string) {
     // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
     // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
-    this.dispatcher.next(new AddTodoAction(this.nextId++, value));
+    this.dispatcher.next(new AddTodoAction(this.nextId++, value)); // "rxjs subject next"でググる。
   }
 }

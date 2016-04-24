@@ -15,14 +15,16 @@ import {Dispatcher} from '../flux/flux-di';
 })
 export class FilterLinkComponent {
   @Input() filter: string;
+  
   constructor(
     private dispatcher: Dispatcher<Action>, // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
     private stateKeeper: StateKeeper // StateKeeperからリードオンリーのstateを受け取るためにDIしている。
   ) { }
 
-  // 選択中のフィルター名にアンダーラインを引く。
+  // 選択中のフィルター名にアンダーラインを引く。戻り値がObservableであるためtemplateではasyncパイプを付ける必要がある。"angular2 async pipe"でググる。
   get textEffect() {
-    return this.stateKeeper.state.map((state: AppState) => { // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
+    // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
+    return this.stateKeeper.state.map<string>((state: AppState) => {
       return state.visibilityFilter === this.filter ? 'underline' : 'none';
     });
   }
@@ -30,6 +32,6 @@ export class FilterLinkComponent {
   setVisibilityFilter() {
     // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
     // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
-    this.dispatcher.next(new SetVisibilityFilter(this.filter)); 
+    this.dispatcher.next(new SetVisibilityFilter(this.filter)); // "rxjs subject next"でググる。
   }
 }

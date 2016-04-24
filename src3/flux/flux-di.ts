@@ -12,10 +12,13 @@ import {StateKeeper} from './flux-state';
   DI設定。Fluxの要。ViewとLogicを巧妙に分離している。理解に至るまでの道のりは長い。ひたすら難しい。こんなことを考案したのは一体誰だ。
   それでもここが理解できないとSavkin's Redux with RxJS for Angular2は理解できない。調べるにあたっては英語力とググり能力が試される最大の難所と言っても良い。
   https://laco0416.github.io/post/platform-prividers-of-angular-2/ を参考にすると理解の助けになるかもしれない。
-  Providerはprovide()で書いても良いが、個人的にはbind()の方が書きやすくて好きだ。
+  Providerはprovide()で書いても良いが個人的にはbind()の方が書きやすくて好きだ。provideはGrunt、bindはGulpみたいな違い。
 */
-export class Dispatcher<T> extends Subject<T> { // RxJSのSubjectクラスを継承してDispatcherクラスを作る。このクラスはDIで使う。
-  constructor(destination?: Observer<T>, source?: Observable<T>) {
+
+// RxJSのSubjectクラスを継承してDispatcherクラスを作る。このクラスはDIで使う。
+// Dispatcherをクラスとして用意しておくことでViewのDIに関する記述がシンプルになる。シンプルさは正義である。
+export class Dispatcher<T> extends Subject<T> { 
+  constructor(destination?: Observer<T>, source?: Observable<T>) { // この記述はRxJSのソースからパクった。
     super(destination, source);
   }
 }

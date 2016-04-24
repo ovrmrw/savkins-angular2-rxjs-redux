@@ -6,8 +6,6 @@ import {Dispatcher} from '../flux/flux-di';
 
 import {TodoComponent} from './todo.component';
 
-import {getVisibleTodos} from '../helper';
-
 
 // TodoAppコンポーネントの子コンポーネント。
 @Component({
@@ -25,8 +23,10 @@ export class TodoListComponent {
     private stateKeeper: StateKeeper // StateKeeperからリードオンリーのstateを受け取るためにDIしている。
   ) { }
 
+  // 戻り値がObservableであるためtemplateではasyncパイプを付ける必要がある。"angular2 async pipe"でググる。
   get filtered() {
-    return this.stateKeeper.state.map((state: AppState) => { // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
+    // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
+    return this.stateKeeper.state.map<Todo[]>((state: AppState) => {
       return getVisibleTodos(state.todos, state.visibilityFilter);
     });
   }
@@ -34,6 +34,20 @@ export class TodoListComponent {
   emitToggle(id: number) {
     // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
     // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
-    this.dispatcher.next(new ToggleTodoAction(id));
+    this.dispatcher.next(new ToggleTodoAction(id)); // "rxjs subject next"でググる。
   }
+}
+
+
+// ただのヘルパー。あまり気にしなくて良い。
+function getVisibleTodos(todos: Todo[], filter: string): Todo[] {
+  return todos.filter(todo => {
+    if (filter === "SHOW_ACTIVE") { // filterがSHOW_ACTIVEならcompletedがfalseのものだけ返す。
+      return !todo.completed;
+    }
+    if (filter === "SHOW_COMPLETED") { // filterがSHOW_COMPLETEDならcompletedがtrueのものだけ返す。
+      return todo.completed;
+    }
+    return true; // 上記以外なら全て返す。
+  });
 }
