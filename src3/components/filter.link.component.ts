@@ -24,7 +24,7 @@ export class FilterLinkComponent {
   // 選択中のフィルター名にアンダーラインを引く。戻り値がObservableであるためtemplateではasyncパイプを付ける必要がある。"angular2 async pipe"でググる。
   get textEffect() {
     // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
-    return this.stateKeeper.state.map<string>((state: AppState) => {
+    return this.stateKeeper.state$.map<string>((state: AppState) => {
       return state.visibilityFilter === this.filter ? 'underline' : 'none';
     });
   }

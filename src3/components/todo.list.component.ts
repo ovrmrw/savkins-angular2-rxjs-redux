@@ -26,7 +26,7 @@ export class TodoListComponent {
   // 戻り値がObservableであるためtemplateではasyncパイプを付ける必要がある。"angular2 async pipe"でググる。
   get filtered() {
     // stateはリードオンリー。mapしているが別にイテレートしているわけではない。Observableを外してるだけ。
-    return this.stateKeeper.state.map<Todo[]>((state: AppState) => {
+    return this.stateKeeper.state$.map<Todo[]>((state: AppState) => {
       return getVisibleTodos(state.todos, state.visibilityFilter);
     });
   }

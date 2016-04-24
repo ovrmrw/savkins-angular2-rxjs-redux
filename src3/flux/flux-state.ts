@@ -31,14 +31,13 @@ export class StateKeeper {
           return { todos, visibilityFilter } as AppState; // {'todos':todos,'visibilityFilter':visibilityFilter}の省略形。
         }
       )
-      .do(s => console.log(s)) // 別にこれは要らない。ストリームの中間で値がどうなっているか確認したいときに使う。
+      // .do(s => console.log(s)) // 別にこれは要らない。ストリームの中間で値がどうなっているか確認したいときに使う。
       .subscribe(appState => { // "rxjs subscribe"でググる。
-      console.log(appState);
         this.stateSubject.next(appState); // "rxjs subject next"でググる。subject.next()により状態が更新される。Viewは更新された状態をstateプロパティを通してリードオンリーで受け取る。
       });
   }
 
-  get state() { // Viewで状態を取得するときはこれを通じて取得する。stateSubjectはprivateなのでリードオンリーとなる。
+  get state$() { // Viewで状態を取得するときはこれを通じて取得する。stateSubjectはprivateなのでリードオンリーとなる。
     return this.stateSubject as Observable<AppState>; // View側で参照したときに見慣れたObservableになっているという親切設計。
   }
 }
