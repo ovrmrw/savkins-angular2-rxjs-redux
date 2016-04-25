@@ -52,3 +52,20 @@ System.config({
     }
   }
 });
+
+// src4を動かす設定。これより前のSystem.configを上書きする。
+System.config({
+  transpiler: 'typescript',
+  typescriptOptions: {
+    emitDecoratorMetadata: true
+  },
+  map: {
+    app: "./src4" // app: "./src"
+  },
+  packages: {
+    app: {
+      main: './main.ts',
+      defaultExtension: 'ts'
+    }
+  }
+});

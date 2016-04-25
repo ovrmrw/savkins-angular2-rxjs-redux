@@ -19,7 +19,7 @@ import {TodoComponent} from './todo.component';
 })
 export class TodoListComponent {
   constructor(
-    private dispatcher: Dispatcher<Action>, // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
+    private dispatcher$: Dispatcher<Action>, // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
     private stateKeeper: StateKeeper // StateKeeperからリードオンリーのstateを受け取るためにDIしている。
   ) { }
 
@@ -34,7 +34,7 @@ export class TodoListComponent {
   emitToggle(id: number) {
     // dispatcherのnextをコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
     // つまりStateKeeperにクロージャされているObservable(scan)内のdispatcherを更新し、scanサイクルを回すトリガーとなる。
-    this.dispatcher.next(new ToggleTodoAction(id)); // "rxjs subject next"でググる。
+    this.dispatcher$.next(new ToggleTodoAction(id)); // "rxjs subject next"でググる。
   }
 }
 

@@ -15,12 +15,12 @@ export class AddTodoComponent {
   private nextId = 0;
 
   constructor(
-    private dispatcher: Dispatcher<Action> // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
+    private dispatcher$: Dispatcher<Action> // DispatcherはSubjectを継承したクラス。オリジナルではここはObservaer<Action>になっている。
   ) { }
 
   addTodo(value: string) {
     // dispatcherのnextをコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
     // つまりStateKeeperにクロージャされているObservable(scan)内のdispatcherを更新し、scanサイクルを回すトリガーとなる。
-    this.dispatcher.next(new AddTodoAction(this.nextId++, value)); // "rxjs subject next"でググる。
+    this.dispatcher$.next(new AddTodoAction(this.nextId++, value)); // "rxjs subject next"でググる。
   }
 }

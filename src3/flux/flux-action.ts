@@ -1,6 +1,6 @@
 // -- actions
 /*
-  Fluxの要、アクション。とにかく理解するのが大変。Viewからはこれらを呼ぶことになる。なんで中身が空なの？それでいいんです！
+  Fluxの要、アクション。とにかく理解するのが大変。Componentからはこれらを呼ぶことになる。なんで中身が空なの？それでいいんです！
 */
 export class AddTodoAction {
   constructor(public todoId: number, public text: string) { }

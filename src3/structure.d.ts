@@ -1,7 +1,7 @@
 // -- state
 /* 
   状態管理のためのインターフェース。アクション発生毎にこれらが更新される。
-  また更新を全てRxjs(onpush)に委ねることでChangeDetectionStrategy.OnPushが使えるようになる。これはデフォルトよりも処理が速い。
+  また更新を全てRxJS(onpush)に委ねることでChangeDetectionStrategy.OnPushが使えるようになる。これはデフォルトよりも処理が速い。
 */
 declare interface Todo {
   id: number;
