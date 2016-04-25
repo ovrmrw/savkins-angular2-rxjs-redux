@@ -32,8 +32,8 @@ export class TodoListComponent {
   }
 
   emitToggle(id: number) {
-    // Subjectのnext()をコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
-    // つまりStateKeeperにクロージャされているSubjectのインスタンス(変数actions)にActionをemitすることでObservableイベント(Subscription)を発火させている。
+    // dispatcherのnextをコールすることで即座にストリームを流している。(この場合のストリームはRxJS用語)
+    // つまりStateKeeperにクロージャされているObservable(scan)内のdispatcherを更新し、scanサイクルを回すトリガーとなる。
     this.dispatcher.next(new ToggleTodoAction(id)); // "rxjs subject next"でググる。
   }
 }

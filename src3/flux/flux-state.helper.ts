@@ -11,14 +11,15 @@ import {ActionTypeTodo, ActionTypeFilter, AddTodoAction, ToggleTodoAction, SetVi
   
   RxJSのscanが使われているのには理由がある。僕は最初この理由がわからなくてmapで代用できるんじゃなかとか思っていた。
   scanのやっていることは配列のreduceみたいなものだが、大きく違うのは一度処理が走った後にそこで終わるのではなく"残り続ける"ことにある。
-  そして次にactionの変化に反応して処理が走るとき、"前回の結果から続きを始める"。何を言っているかわかるだろうか。
-  つまり時間をまたいでイベントの発生の度にreduceして新しい値を返しているのである。そしてこれはプログラムが終了するまでずっと続くのである。   
+  そして次にdispatcherがnextされたとき、"前回の結果から続きを始める"。何を言っているかわかるだろうか。
+  つまり時間をまたいでnextの度に畳み込んで新しい値を返しているのである。そしてこれはプログラムが終了するまで(あるいは意図的に終わらせるまで)ずっと続くのである。
+  (@bouzuya さんありがとう！)   
 */
 
 // actionsの型はオリジナルではObservable<Action>だがTodoの操作に必要なものだけ絞り込む意味でActionTypeTodoを使っている。
-export function todosStateObserver(initTodos: Todo[], actions$: Observable<ActionTypeTodo>): Observable<Todo[]> {
+export function todosStateObserver(initTodos: Todo[], dispatcher$: Observable<ActionTypeTodo>): Observable<Todo[]> {
   // scanの理解はとても長い道のりである。配列のreduceとは似ているが全く違う。概念の違いだ。RxJSは時間をまたいでreduceする。いずれ理解できるだろう。
-  return actions$.scan<Todo[]>((todos: Todo[], action: ActionTypeTodo) => { // "rxjs scan"でググる。
+  return dispatcher$.scan<Todo[]>((todos: Todo[], action: ActionTypeTodo) => { // "rxjs scan"でググる。
     if (action instanceof AddTodoAction) { // actionがAddTodoActionの場合。
       const newTodo = {
         id: action.todoId,
@@ -37,9 +38,9 @@ export function todosStateObserver(initTodos: Todo[], actions$: Observable<Actio
 }
 
 // actionsの型はオリジナルではObservable<Action>だがFilterの操作に必要なものだけ絞り込む意味でActionTypeFilterを使っている。
-export function filterStateObserver(initFilter: string, actions$: Observable<ActionTypeFilter>): Observable<string> {
-  // scanの理解はとても長い道のりである。配列のreduceとは似ているが全く違う。概念の違いだ。RxJSは時間をまたいでreduceする。いずれ理解できるだろう。
-  return actions$.scan<string>((filter: string, action: ActionTypeFilter) => { // "rxjs scan"でググる。
+export function filterStateObserver(initFilter: string, dispatcher$: Observable<ActionTypeFilter>): Observable<string> {
+  // Componentでdispatcherをnextしたとき、このscanのサイクルが回る。それ以外では回ることはない。そしてずっとnextを待機する。
+  return dispatcher$.scan<string>((filter: string, action: ActionTypeFilter) => { // "rxjs scan"でググる。
     if (action instanceof SetVisibilityFilter) { // actionがSetVisibilityFilterの場合。
       return action.filter;
     } else { // actionがSetVisibilityFilterではない場合。

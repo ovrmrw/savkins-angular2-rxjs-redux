@@ -16,18 +16,18 @@ import {StateKeeper} from './flux-state';
 */
 
 // RxJSのSubjectクラスを継承してDispatcherクラスを作る。このクラスはDIで使う。
-// Dispatcherをクラスとして用意しておくことでViewのDIに関する記述がシンプルになる。シンプルさは正義である。
+// Dispatcherをクラスとして用意しておくことでComponentのDIに関する記述がシンプルになる。シンプルさは正義である。
 export class Dispatcher<T> extends Subject<T> { 
   constructor(destination?: Observer<T>, source?: Observable<T>) { // この記述はRxJSのソースからパクった。
     super(destination, source);
   }
 }
 
-// 最後の方に出てくるTodoAppコンポーネントのprovidersにセットしており、bootstrap()時にインスタンス化される。(@laco0416 さんありがとう！)
+// TodoAppコンポーネントのprovidersにセットしており、Angular2のbootstrap()時にインスタンス化されComponentに紐付けられる。(@laco0416 さんありがとう！)
 // StateKeeperのインスタンスを生成するときにinitStateとdispatcherを引数にあてている(クロージャしている)ので、
-// 後述するdispatcher.next()がコールされたときにStateKeeper内部へ伝播してObservableイベント(Subscription)を強制発火させている。(という個人的な解釈)
+// Componentでdispatcher.next()をコールしたときにStateKeeper内部のObservable(scan)のscanサイクルを回すことができる。
 export const stateAndDispatcher = [
-  bind('initState').toValue({ todos: [], visibilityFilter: 'SHOW_ALL' } as AppState), // Viewから参照しないのでOpaqueTokenは使っていない。
-  bind(Dispatcher).toValue(new Dispatcher<Action>(null)), // 超重要。Viewでnext()をコールすることでStateKeeperクラス内のイベントリスナーを発火させる。
+  bind('initState').toValue({ todos: [], visibilityFilter: 'SHOW_ALL' } as AppState), // Componentから参照しないのでOpaqueTokenは使っていない。
+  bind(Dispatcher).toValue(new Dispatcher<Action>(null)), // 超重要。これが全てを一つの輪に紡ぎ上げる。Savkin's Fluxの循環サイクルを理解できたとき、人は悟りを知るだろう。
   bind(StateKeeper).toFactory((state, dispatcher) => new StateKeeper(state, dispatcher), ['initState', Dispatcher]) // toFactoryの第二引数はTokenの配列であることに注意。bootstrap時にTokenを通じて値がStateKeeperの引数にあてられる。
 ];
