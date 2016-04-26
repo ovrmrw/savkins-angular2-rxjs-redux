@@ -70,11 +70,11 @@ class StateKeeper {
     // イベント発生毎にsubjectの内容を更新するイベントリスナー。そう、これはある意味イベントリスナーだ。←否！僕は勘違いしていた。
     // この一節の理解はとても難しい。RxJSのObservableが一体どういうものなのか理解できるまでは腑に落ちないだろう。
     // これは"初回に一度だけ"実行され、その後はフワフワ漂うように存在し、必要に応じて"呼び出すのではなく呼び出される"のである。"反応する、呼応する"と言った方がいいかもしれない。(@bouzuya さんありがとう！)
-    // 重要なのはObservable(zip)がObservable(scan)を内包しており、dispatcherのnextによる"内側から(?)"のデータの伝播が発生すること。(適当)    
+    // 重要なのはObservable(zip)がObservable(scan)を内包しており、dispatcherのnextによる"内側から(?)"のデータの伝播が発生すること。(適当)        
     Observable
       .zip<AppState>( // "rxjs zip"でググる。
         // Componentでのdispatcher.next()により、Observable(zip)に内包されたObservable(scan)にクロージャされたdispathcerがscanサイクルを回し、その結果をzipで受けてsubscribeに流す。
-        // todosStateObserverとfilterStateObserverの両方の結果を受けるまでzipはストリームを待機する。
+        // todosStateObserverとfilterStateObserverの両方の結果を受けるまでzipはストリームを待機する。        
         todosStateObserver(initState.todos, dispatcher$), // 勘違いしてはいけない。これは"初回に一度だけ"実行される関数である。
         filterStateObserver(initState.visibilityFilter, dispatcher$), //  〃
         (todos, visibilityFilter) => { // zipが返す値を整形できる。
@@ -86,6 +86,8 @@ class StateKeeper {
         // このStateKeeperクラスのインスタンスはAngular2のbootstrap()時にComponentと紐付けられている。
         // そしてstateSubjectのnextはAngular2のChangeDetection機構のOnPushへ通達され、Componentの更新をトリガーすることとなる。
         this.stateSubject.next(appState); // "rxjs subject next"でググる。Componentは更新された状態をstateプロパティを通してリードオンリーで受け取る。
+        console.log('subscribe');
+        console.trace();
       });
   }
 
@@ -332,3 +334,31 @@ class TodoApp { }
 enableProdMode(); // 動作が2倍くらい速くなる。プロダクション環境では推奨。(@laco0416 さんありがとう！)
 bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットしたProvider達はこのときに一度だけインスタンス化される。
   .catch(err => console.error(err));
+  
+  
+////////////////////////////////////////////////////////////////////////////////////
+// 最後に  
+/*
+  StateKeeperクラスの下記の一文はSavkinによるアートである。僕の推測も入るが出来る限り詳細に解説したい。
+    Observable.zip(ScanObservable, ScanObservable).subscribe(Subject.next());
+  (* scanオペレーターをセットしたObservableを便宜上ScanObservableとした)
+  
+  1. Componentでdispatcher.nextをコールすると2つのScanObservableが1周する。(scanの処理が走る)
+  2. ZipObservableはRxJSのInnerSubscriberという仕組みを通じて、内包する2つのScanObservableをsubscribeしている。
+  3. 内包する全てのObservableのnextを受けるとZipObservableは次にストリームを流す。(subscribeに処理が移る)
+  4. subscribeの中ではComponentのStateを管理しているSubjectのnextをコールして"新しい状態"をSubscriberに伝達する。
+  5. 上記4はどこに伝達する？僕の力量では追い切れないが、おそらくbootstrap時に紐付けられたComponentのChangeDetection機構である。
+  6. その結果ComponentでStateKeeperのstateを参照している箇所の更新処理が自動的に走ることになる。
+  
+  SavkinはRxJSのSubjectを2つの場所で実に巧妙に使っている。
+  1つはComponentからScanObservableへAction(データ)を送り込む用途として。
+    (ComponentでnextしたデータをScanObservableに送る同時にscanを走らせる)
+  もう1つは上記でトリガーされた一連の流れの最後でStateをComponentに送り込む用途として。
+    (StateKeeperでnextしたデータをComponentに送ると同時にChangeDetection機構のOnPushを通じてViewを更新させる)
+    
+  重要なのは送り込む先に事前にクロージャしておくことでリモート操作するようにSubjectを使いこなしている点である。
+  僕は最初この流れが全く理解できなくてどこで何が起きているのかさっぱりわからなかった。
+  しかしこれを理解できた後は、使う使わないに関わらず多くの人がこの仕組みを知った方がいいと考えるようになった。
+  
+  これを読んでくれた人がRxJSをより使いこなせるようになる、そんな一助になれば幸いです。 
+*/
