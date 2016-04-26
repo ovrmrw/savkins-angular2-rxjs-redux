@@ -348,6 +348,9 @@ bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットした
   5. 上記4はどこに伝達する？僕の力量では追い切れないが、おそらくbootstrap時に紐付けられたComponentのChangeDetection機構である。
   6. その結果ComponentでStateKeeperのstateを参照している箇所の更新処理が自動的に走ることになる。
   
+  大まかな循環サイクルは下記のようになる。Componentから始まり見事にComponentに返ってくるではないか。
+  Component -> dispatcher.next -> scan -> zip -> subscribe -> stateSubject.next -> Component 
+  
   SavkinはRxJSのSubjectを2つの場所で実に巧妙に使っている。
   1つはComponentからScanObservableへAction(データ)を送り込む用途として。
     (ComponentでnextしたデータをScanObservableに送ると同時にscanを走らせる)
