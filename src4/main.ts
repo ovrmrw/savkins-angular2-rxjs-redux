@@ -86,8 +86,6 @@ class StateKeeper {
         // このStateKeeperクラスのインスタンスはAngular2のbootstrap()時にComponentと紐付けられている。
         // そしてstateSubjectのnextはAngular2のChangeDetection機構のOnPushへ通達され、Componentの更新をトリガーすることとなる。
         this.stateSubject.next(appState); // "rxjs subject next"でググる。Componentは更新された状態をstateプロパティを通してリードオンリーで受け取る。
-        console.log('subscribe');
-        console.trace();
       });
   }
 
