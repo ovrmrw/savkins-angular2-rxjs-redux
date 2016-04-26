@@ -341,7 +341,7 @@ bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットした
     Observable.zip(ScanObservable, ScanObservable).subscribe(Subject.next());
   (* scanオペレーターをセットしたObservableを便宜上ScanObservableとした)
   
-  1. Componentでdispatcher.nextをコールすると2つのScanObservableが1周する。(scanの処理が走る)
+  1. Componentでdispatcher.nextをコールすると2つのScanObservableの処理が走る。(nextされたdispatcherを内包しているから)
   2. ZipObservableはRxJSのInnerSubscriberという仕組みを通じて、内包する2つのScanObservableをsubscribeしている。
   3. 内包する全てのObservableのnextを受けるとZipObservableは次にストリームを流す。(subscribeに処理が移る)
   4. subscribeの中ではComponentのStateを管理しているSubjectのnextをコールして"新しい状態"をSubscriberに伝達する。
@@ -350,13 +350,14 @@ bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットした
   
   SavkinはRxJSのSubjectを2つの場所で実に巧妙に使っている。
   1つはComponentからScanObservableへAction(データ)を送り込む用途として。
-    (ComponentでnextしたデータをScanObservableに送る同時にscanを走らせる)
+    (ComponentでnextしたデータをScanObservableに送ると同時にscanを走らせる)
   もう1つは上記でトリガーされた一連の流れの最後でStateをComponentに送り込む用途として。
     (StateKeeperでnextしたデータをComponentに送ると同時にChangeDetection機構のOnPushを通じてViewを更新させる)
     
   重要なのは送り込む先に事前にクロージャしておくことでリモート操作するようにSubjectを使いこなしている点である。
+  まるで遠隔操作系のスタンド能力のようだ。元ネタがわからない人はスルーして欲しい。
   僕は最初この流れが全く理解できなくてどこで何が起きているのかさっぱりわからなかった。
-  しかしこれを理解できた後は、使う使わないに関わらず多くの人がこの仕組みを知った方がいいと考えるようになった。
+  しかしこれを理解できた後は、使う使わないに関わらず多くの人がこの応用を知った方が有益だと考えるようになった。
   
   これを読んでくれた人がRxJSをより使いこなせるようになる、そんな一助になれば幸いです。 
 */
