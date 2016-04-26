@@ -338,13 +338,13 @@ bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットした
 // 最後に  
 /*
   StateKeeperクラスの下記の一文はSavkinによるアートである。僕の推測も入るが出来る限り詳細に解説したい。
-    Observable.zip(ScanObservable, ScanObservable).subscribe(Subject.next());
+    Observable.zip(ScanObservable, ScanObservable).subscribe(BehaviorSubject.next());
   (* scanオペレーターをセットしたObservableを便宜上ScanObservableとした)
   
   1. Componentでdispatcher.nextをコールすると2つのScanObservableの処理が走る。(nextされたdispatcherを内包しているから)
   2. ZipObservableはRxJSのInnerSubscriberという仕組みを通じて、内包する2つのScanObservableをsubscribeしている。
   3. 内包する全てのObservableのnextを受けるとZipObservableは次にストリームを流す。(subscribeに処理が移る)
-  4. subscribeの中ではComponentのStateを管理しているSubjectのnextをコールして"新しい状態"をSubscriberに伝達する。
+  4. subscribeの中ではComponentのStateを管理しているBehaviorSubjectのnextをコールして"新しい状態"をSubscriberに伝達する。
   5. 上記4はどこに伝達する？僕の力量では追い切れないが、おそらくbootstrap時に紐付けられたComponentのChangeDetection機構である。
   6. その結果ComponentでStateKeeperのstateを参照している箇所の更新処理が自動的に走ることになる。
   
@@ -357,7 +357,10 @@ bootstrap(TodoApp) // TodoAppコンポーネントのprovidersにセットした
   もう1つは上記でトリガーされた一連の流れの最後でStateをComponentに送り込む用途として。
     (StateKeeperでnextしたデータをComponentに送ると同時にChangeDetection機構のOnPushを通じてViewを更新させる)
     
-  重要なのは送り込む先に事前にクロージャしておくことでリモート操作するようにSubjectを使いこなしている点である。
+  特に後者はBehaviorSubjectという特殊なSubjectを用いており、初期値と直近の値を保持している。
+  Savkinはこの特徴をFluxで言うところのSTOREの代わりに使っている。と思う。
+    
+  総じて重要なのは、送り込む先に事前にクロージャしておくことでリモート操作するようにSubjectを使いこなしている点である。
   まるで遠隔操作系のスタンド能力のようだ。元ネタがわからない人はスルーして欲しい。
   僕は最初この流れが全く理解できなくてどこで何が起きているのかさっぱりわからなかった。
   しかしこれを理解できた後は、使う使わないに関わらず多くの人がこの応用を知った方が有益だと考えるようになった。
