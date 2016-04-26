@@ -62,6 +62,8 @@ type Action = ActionTypeTodo | ActionTypeFilter; // 全てのアクションを�
 
 // @Injectable() // Injectableはインスタンス生成をInjectorに任せる場合に必須。このサンプルではtoFactoryで生成するので不要。(@laco0416 さんありがとう！)
 class StateKeeper {
+  // 詳細はわからないがクラスのインスタンスがbootstrap時にComponentと紐付けられると、
+  // ChangeDetection機構はBehaviorSubjectのnextを検知してOnPushによるComponentの更新をするようになる。
   private stateSubject: BehaviorSubject<AppState>; // "rxjs behaviorsubject"でググる。初期値を持てるのがポイント。
 
   constructor(initState: AppState, dispatcher$: Observable<Action>) { // dispatcherの型はDispatcher<Action>でも良いが敢えてそうする必要もない。
